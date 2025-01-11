@@ -9,17 +9,17 @@ import FileUploader from "../shared/FileUploader";
 import { newPostSchema } from "@/lib/validations";
 import { Post } from "@/app/types";
 import { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
 import axios  from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLoading } from "@/hooks/useLoading";
 import { useRouter } from "next/navigation";
 import Loader from "../shared/Loader";
+import { useUser } from "@clerk/nextjs";
 
 export default function PostForm({ post }: { post?: Post }) {
-  const { data: session } = useSession()
-  const userId = session?.user?.id || "";  // 1. Define your form.
+  const { user } = useUser()
+  const userId = user?.id  // 1. Define your form.
   const queryClient = useQueryClient();
   const { isLoading, setIsLoading } = useLoading()
   const [imageUrl, setImageUrl] = useState<string | undefined>(post?.img || '')

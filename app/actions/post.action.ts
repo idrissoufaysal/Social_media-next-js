@@ -1,5 +1,6 @@
-import { getAuth } from "@/lib/authConfig";
+"use server";
 import prisma from "@/lib/prisma";
+import { auth } from "@clerk/nextjs/server";
 
 
 export const getPosts = async () => {
@@ -21,7 +22,7 @@ export const getPosts = async () => {
                     }, comments: {
                         orderBy: { createdAt: "asc" },
                         include: {
-                            user: {
+                            author: {
                                 select: {
                                     id: true, name: true, image: true
                                 }
@@ -55,14 +56,12 @@ export const getPosts = async () => {
 
 export const toggleLike = async (postId: number) => {
 
-    const session = await getAuth();
-    const userId = session?.user.id;
-
     if (isNaN(postId)) {
         return { message: "Invalid post ID" }
     }
-
+    
     try {
+        const {userId}=await auth()
         if (!userId) {
             return { message: 'User not authenticated' }
         }

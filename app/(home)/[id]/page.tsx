@@ -3,29 +3,24 @@ import Image from 'next/image'
 import { Posts } from "@/app/types";
 import Loader from "@/components/shared/Loader";
 import { Button } from "@/components/ui/button";
-import { useLoading } from "@/hooks/useLoading";
-import { useUser } from "@/hooks/useUser";
 import { multiFormatDateString } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PostStats from '@/components/shared/PostFeed';
-import { useSession } from 'next-auth/react';
+import { useUser } from '@clerk/nextjs';
 
 const PostDetails = ({ params }: { params: { id: string } }) => {
   const postId = parseInt(params.id)
 
-  const { isLoading, setIsLoading } = useLoading()
-  const { data: session } = useSession();
-  const user=session?.user
+  const { user } = useUser();
   const router = useRouter()
 
-  const { data: post } = useQuery(
+  const { data: post,isPending } = useQuery(
     {
       queryKey: ["get_post", postId],
       queryFn: async () => {
-        setIsLoading(true);
         try {
           const response = await axios.get(`/api/post/${postId}`);
           return response.data as Posts[number];
@@ -33,7 +28,6 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
           console.error(error);
           throw error;
         } finally {
-          setIsLoading(false);
         }
       },
     }
@@ -64,7 +58,7 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
         </Button>
       </div>
 
-      {isLoading || !post ? (
+      {isPending || !post ? (
         <Loader />
       ) : (
         <div className="post_details-card">

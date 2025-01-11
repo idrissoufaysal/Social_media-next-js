@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { SessionProvider } from "next-auth/react";
-import CustomSessionProvider from "@/components/session/Session";
 import { Toaster } from "@/components/ui/toaster";
 import ReactQueryProvider from "@/utils/ReactQueryProvider";
+
+import {
+  ClerkProvider
+} from '@clerk/nextjs'
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,15 +30,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <ReactQueryProvider>
-          <CustomSessionProvider>
-            {children}
-            <Toaster />
-          </CustomSessionProvider>
-        </ReactQueryProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          <ReactQueryProvider>
+              {children}
+              <Toaster />
+          </ReactQueryProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+"use client";
 import { Posts } from '@/app/types'
 import Image from 'next/image'
 import Loader from './Loader'
 import { useOptimistic, useState, useTransition } from 'react'
 import { toggleLike } from '@/app/actions/post.action'
-import { useSession } from 'next-auth/react'
+import { useUser } from '@clerk/nextjs'
 
 function PostStats({ post, userId }: { post: Posts[number], userId?: string }) {
-    const { data: session } = useSession();
-    const user=session?.user
+    const { user } = useUser();
 
     const [isCommenting, setisCommenting] = useState(false)
     const [hasLiked, setisHasLiked] = useState(post.likes?.some((like) => like.userId === user?.id))

@@ -2,7 +2,6 @@
 import Bottombar from "@/components/shared/Bottombar";
 import LeftBar from "@/components/shared/leftBar";
 import Topbar from "@/components/shared/Topbar";
-import { SessionProvider } from "next-auth/react";
 
 export default function HomeLayout({
   children,

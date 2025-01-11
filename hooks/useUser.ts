@@ -4,7 +4,7 @@ import { User } from "@/app/types"; // Assurez-vous que le chemin est correct
 import axios from "axios";
 import { useSession } from "next-auth/react";
 
-export const useUser = () => {
+export const useUsers = () => {
     const [user, setUser] = useState<User | null>(null); // Initialisez avec null
     const [isAuth, setIsAuth] = useState(false);
     const { data: session } = useSession();
