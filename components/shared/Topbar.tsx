@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
+import { SignOutButton } from "@clerk/nextjs";
 
 export default function Topbar() {
   return (
@@ -17,22 +18,23 @@ export default function Topbar() {
           />
         </Link>
         <div className="flex gap-4">
-          <Button
-            variant="ghost"
-            className="shad-button_ghost"
-            onClick={() => {
-              console.log("logoutUser");
-            }}
-          >
-            <Image
-              src="assets/icons/logout.svg"
-              alt="logout"
-              width={30}
-              height={40}
-            />
-          </Button>
+          <SignOutButton>
+
+            <Button
+              variant="ghost"
+              className="shad-button_ghost"
+
+            >
+              <Image
+                src="assets/icons/logout.svg"
+                alt="logout"
+                width={30}
+                height={40}
+              />
+            </Button>
+          </SignOutButton>
           <Link href={"/profile/:id"} className="flex-center gap-3">
-          <Image
+            <Image
               src="assets/icons/profile-placeholder.svg"
               alt="profile"
               width={40}
@@ -42,6 +44,6 @@ export default function Topbar() {
           </Link>
         </div>
       </div>
-    </section>
+    </section >
   );
 }

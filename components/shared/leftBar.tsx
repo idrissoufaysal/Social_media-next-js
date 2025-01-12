@@ -6,16 +6,12 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
 import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { SignOutButton } from "@clerk/nextjs";
 export default function LeftBar() {
   const pathname = usePathname();
   //const {user}=useUser()
   console.log(pathname);
 
-  const handleLogout=()=>{
-    signOut({ callbackUrl: "/login" }); // Redirige l'utilisateur vers la page d'accueil après la déconnexion
-  }
-  
 
   return (
     <nav className="leftsidebar ">
@@ -44,7 +40,7 @@ export default function LeftBar() {
         </Link>
         <ul className="flex flex-col gap-3">
           {sidebarLinks.map((link: INavLink) => {
-            const isActive=pathname===link.route
+            const isActive = pathname === link.route
             return (
               <li key={link.label} className={`leftsidebar-link group ${isActive && 'bg-primary-500'}`}>
                 <Link href={link.route} className="flex gap-4 items-center py-3 px-4">
@@ -62,19 +58,21 @@ export default function LeftBar() {
           })}
         </ul>
       </div>
-      <Button
-        variant="ghost"
-        className="shad-button_ghost mt-10"
-       onClick={handleLogout}
-      >
-        <Image
-          src="assets/icons/logout.svg"
-          alt="logout"
-          width={20}
-          height={30}
-        />
-        <p className="small-medium lg:base-medium">Logout</p>
-      </Button>
-    </nav>
+      <SignOutButton>
+        <Button
+          variant="ghost"
+          className="shad-button_ghost mt-10"
+        // onClick={handleLogout}
+        >
+          <Image
+            src="assets/icons/logout.svg"
+            alt="logout"
+            width={20}
+            height={30}
+          />
+          <p className="small-medium lg:base-medium">Logout</p>
+        </Button>
+      </SignOutButton>
+    </nav >
   );
 }
