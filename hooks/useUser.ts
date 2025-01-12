@@ -2,18 +2,18 @@
 import { useEffect, useState } from "react";
 import { User } from "@/app/types"; // Assurez-vous que le chemin est correct
 import axios from "axios";
-import { useSession } from "next-auth/react";
+import { useUser } from "@clerk/nextjs";
 
 export const useUsers = () => {
     const [user, setUser] = useState<User | null>(null); // Initialisez avec null
     const [isAuth, setIsAuth] = useState(false);
-    const { data: session } = useSession();
+    const { user:currentUser } = useUser();
 
     useEffect(() => {
         const fetchUser = async () => {
-            if (session?.user?.id) { // Vérifiez si l'ID de l'utilisateur existe
+            if (currentUser?.id) { // Vérifiez si l'ID de l'utilisateur existe
                 try {
-                    const response = await axios.get(`/api/user/${session.user.id}`);
+                    const response = await axios.get(`/api/user/${currentUser.id}`);
                     if (response.status === 200) {
                         setIsAuth(true);
                         setUser(response.data);
@@ -28,7 +28,7 @@ export const useUsers = () => {
         };
 
         fetchUser();
-    }, [session?.user?.id]); // Ne pas inclure `user` comme dépendance ici
+    }, [currentUser?.id]); // Ne pas inclure `user` comme dépendance ici
 
     return {
         user,

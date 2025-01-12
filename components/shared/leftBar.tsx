@@ -7,9 +7,10 @@ import React from "react";
 import { Button } from "../ui/button";
 import { usePathname } from "next/navigation";
 import { SignOutButton } from "@clerk/nextjs";
+import { useUsers } from "@/hooks/useUser";
 export default function LeftBar() {
   const pathname = usePathname();
-  //const {user}=useUser()
+  const { user } = useUsers()
   console.log(pathname);
 
 
@@ -18,7 +19,7 @@ export default function LeftBar() {
       <div className="flex flex-col gap-7">
         <Link href="/" className="flex gap-3 items-center">
           <Image
-            src="assets/images/logo.svg"
+            src={"assets/images/logo.svg"}
             alt="logo"
             width={170}
             height={36}
@@ -27,7 +28,7 @@ export default function LeftBar() {
 
         <Link href="/profile/:id" className="flex gap-3 items-center">
           <Image
-            src="assets/icons/profile-placeholder.svg"
+            src={user?.image || "assets/icons/profile-placeholder.svg"}
             alt="profile"
             width={40}
             height={40}
@@ -35,7 +36,7 @@ export default function LeftBar() {
           />
           <div className="flex flex-col">
             <p className="body-bold">JsMastery</p>
-            <p className="small-regular text-light-3">{`@username`}</p>
+            <p className="small-regular text-light-3">{`${user?.name || "@username"} `}</p>
           </div>
         </Link>
         <ul className="flex flex-col gap-3">

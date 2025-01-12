@@ -1,4 +1,4 @@
-import { getPosts } from "../actions/post.action";
+import { getPosts } from "../../actions/post.action";
 
 export type INavLink = {
     imgURL: string;

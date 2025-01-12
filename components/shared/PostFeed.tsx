@@ -4,7 +4,7 @@ import { Posts } from '@/app/types'
 import Image from 'next/image'
 import Loader from './Loader'
 import { useOptimistic, useState, useTransition } from 'react'
-import { toggleLike } from '@/app/actions/post.action'
+import { toggleLike } from '@/actions/post.action'
 import { useUser } from '@clerk/nextjs'
 
 function PostStats({ post, userId }: { post: Posts[number], userId?: string }) {
@@ -46,7 +46,6 @@ function PostStats({ post, userId }: { post: Posts[number], userId?: string }) {
 
     return (
         <div className='flex justify-between items-center'>
-
             <div className="flex gap-2">
             <Image
                     src={optimisticState.hasLiked ? "/assets/icons/liked.svg" : "/assets/icons/like.svg"} // Change l'icône en fonction de l'état

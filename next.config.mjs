@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     images: {
-        domains: ['moccasin-defensive-anglerfish-751.mypinata.cloud'],
+        domains: ['moccasin-defensive-anglerfish-751.mypinata.cloud',"img.clerk.com"],
         remotePatterns: [
             {
                 protocol: 'https',

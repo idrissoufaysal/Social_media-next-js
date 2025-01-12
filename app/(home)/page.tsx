@@ -3,9 +3,9 @@ import Link from "next/link";
 import React from "react";
 import { Posts } from "../types";
 import { SignIn } from "@clerk/nextjs";
-import { getPosts } from "../actions/post.action";
+import { getPosts } from "../../actions/post.action";
 import { currentUser } from "@clerk/nextjs/server";
-import { syncUser } from "../actions/user.action";
+import { syncUser } from "../../actions/user.action";
 
 export default async function HomePage() {
   const data =await getPosts()

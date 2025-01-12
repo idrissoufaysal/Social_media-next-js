@@ -8,7 +8,7 @@ export const GET = async (req: Request, { params }: { params: { id: string } }) 
 
     try {
         const existingUser = await prisma.user.findUnique({
-            where: { id: params.id },
+            where: { clerkId: params.id },
             select: {
                 email: true,
                 name: true,
