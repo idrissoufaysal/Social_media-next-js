@@ -9,12 +9,12 @@ import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PostStats from '@/components/shared/PostFeed';
-import { useUser } from '@clerk/nextjs';
+import { useUsers } from '@/hooks/useUser';
 
 const PostDetails = ({ params }: { params: { id: string } }) => {
   const postId = parseInt(params.id)
 
-  const { user } = useUser();
+  const { user } = useUsers();
   const router = useRouter()
 
   const { data: post,isPending } = useQuery(
@@ -91,7 +91,7 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
                   </p>
                   <div className="flex-center gap-2 text-light-3">
                     <p className="subtle-semibold lg:small-regular ">
-                      {multiFormatDateString(post?.createdAt)}
+                      {multiFormatDateString(post?.createdAt.toDateString())}
                     </p>
                     •
 
