@@ -1,6 +1,7 @@
 "use server";
 import prisma from "@/lib/prisma";
-import { auth } from "@clerk/nextjs/server";
+import { getDbUserId } from "./user.action";
+import { revalidatePath } from "next/cache";
 
 
 export const getPosts = async () => {
@@ -17,7 +18,7 @@ export const getPosts = async () => {
                             name: true,
                             username: true,
                             image: true,
-                            email: true  
+                            email: true
                         }
                     }, comments: {
                         orderBy: { createdAt: "asc" },
@@ -53,15 +54,35 @@ export const getPosts = async () => {
     }
 }
 
+export const createNewPost = async ( img: string,desc: string) => {
+
+    const userId = await getDbUserId();
+    if (userId == null) return
+
+    try {
+        const newPost = await prisma.post.create({ data: { desc, img, authorId: userId } })
+        revalidatePath('/')
+        return { success:true, post: newPost }
+    } catch (error) {
+        console.log(error);
+
+        console.error("Failed to create post:", error);
+        return { success: false, error: "Failed to create post" };
+
+
+    }
+}
+
+
 
 export const toggleLike = async (postId: number) => {
 
     if (isNaN(postId)) {
         return { message: "Invalid post ID" }
     }
-    
+
     try {
-        const {userId}=await auth()
+        const userId  = await getDbUserId()
         if (!userId) {
             return { message: 'User not authenticated' }
         }

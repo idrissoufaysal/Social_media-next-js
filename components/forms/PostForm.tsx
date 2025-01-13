@@ -8,14 +8,15 @@ import { Textarea } from "../ui/textarea";
 import FileUploader from "../shared/FileUploader";
 import { newPostSchema } from "@/lib/validations";
 import { Post } from "@/app/types";
-import { useEffect, useState } from "react";
-import axios  from "axios";
+import { useState } from "react";
+import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLoading } from "@/hooks/useLoading";
 import { useRouter } from "next/navigation";
 import Loader from "../shared/Loader";
 import { useUser } from "@clerk/nextjs";
+import { createNewPost } from "@/actions/post.action";
 
 export default function PostForm({ post }: { post?: Post }) {
   const { user } = useUser()
@@ -70,11 +71,10 @@ export default function PostForm({ post }: { post?: Post }) {
     }
 
 
-    console.log("post values", postValues);
-
-    await createPost(postValues)
+    await createNewPost(postValues.img!,postValues.desc)
+    // await createPost(postValues)
       .then((res) => {
-        if (res.status == 200) {
+        if (res?.success== true) {
           toast({
             title: "Success",
             description: "Post added successfully",
@@ -89,12 +89,6 @@ export default function PostForm({ post }: { post?: Post }) {
     setIsLoading(false)
 
   }
-
-  useEffect(() => {
-    if (userId) {
-      form.setValue("userId", userId);
-    }
-  }, [form, userId])
 
   return (
     <Form {...form}>
@@ -119,11 +113,11 @@ export default function PostForm({ post }: { post?: Post }) {
             <FormItem>
               <FormLabel className="shad-form_label" >Add photos</FormLabel>
               <FormControl>
-          <FileUploader
-          fieldChange={field.onChange}
-          mediaUrl={imageUrl}
-          setImage={(url)=>setImageUrl(url)}
-          />
+                <FileUploader
+                  fieldChange={field.onChange}
+                  mediaUrl={imageUrl}
+                  setImage={(url) => setImageUrl(url)}
+                />
 
               </FormControl>
               <FormMessage />

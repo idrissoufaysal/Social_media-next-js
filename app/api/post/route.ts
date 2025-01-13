@@ -1,3 +1,4 @@
+import { getDbUserId } from "@/actions/user.action";
 import prisma from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
@@ -20,9 +21,9 @@ export const GET = async () => {
                             email: true
                         }
                     }, comments: {
-                        orderBy:{createdAt:"asc"},
+                        orderBy: { createdAt: "asc" },
                         include: {
-                            user: {
+                            author: {
                                 select: {
                                     id: true, name: true, image: true
                                 }
@@ -31,17 +32,17 @@ export const GET = async () => {
                     }, likes: {
                         select: {
                             userId: true
-                            
+
                         },
-                        
-                        
+
+
                     },
-                _count:{
-                    select:{
-                        comments:true,
-                        likes:true
+                    _count: {
+                        select: {
+                            comments: true,
+                            likes: true
+                        }
                     }
-                }
                 }
             })
 
@@ -58,10 +59,12 @@ export const GET = async () => {
 }
 
 export const POST = async (req: NextRequest) => {
-    const { desc, userId, img } = await req.json()
+    const { desc, img } = await req.json()
+    const userId = await getDbUserId();
+    if (userId == null) return
 
     try {
-        const newPost = await prisma.post.create({ data: { desc, userId, img } })
+        const newPost = await prisma.post.create({ data: { desc, img, authorId: userId } })
         revalidatePath('/')
         return NextResponse.json({ Message: "Post add succefully", post: newPost }, { status: 200 })
     } catch (error) {

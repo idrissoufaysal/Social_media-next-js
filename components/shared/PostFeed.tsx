@@ -1,22 +1,19 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { Posts } from '@/app/types'
-import Image from 'next/image'
-import Loader from './Loader'
-import { useOptimistic, useState, useTransition } from 'react'
-import { toggleLike } from '@/actions/post.action'
-import { useUser } from '@clerk/nextjs'
+import { Posts } from '@/app/types';
+import Image from 'next/image';
+import { useOptimistic, useState, useTransition } from 'react';
+import { toggleLike } from '@/actions/post.action';
 
-function PostStats({ post, userId }: { post: Posts[number], userId?: string }) {
-    const { user } = useUser();
+function PostStats({ post, userId }: { post: Posts[number]; userId?: string }) {
+    
 
-    const [isCommenting, setisCommenting] = useState(false)
-    const [hasLiked, setisHasLiked] = useState(post.likes?.some((like) => like.userId === user?.id))
-    const [isliking, setisLiking] = useState(false)
-    const [likes, setlikes] = useState(post._count?.likes)
+    const [hasLiked, setisHasLiked] = useState(post.likes?.some((like) => like.userId === userId));
+    const [isliking, setisLiking] = useState(false);
+    const [likes, setlikes] = useState(post._count?.likes);
 
-     // Utilisation de useOptimistic pour gérer l'état optimiste
-     const [optimisticState, setOptimisticState] = useOptimistic(
+    // Utilisation de useOptimistic pour gérer l'état optimiste
+    const [optimisticState, setOptimisticState] = useOptimistic(
         { likes, hasLiked }, // État initial
         (state, action: "like" | "unlike") => {
             // Fonction de réduction pour mettre à jour l'état optimiste
@@ -28,26 +25,32 @@ function PostStats({ post, userId }: { post: Posts[number], userId?: string }) {
         }
     );
 
+    // Utilisation de useTransition pour encapsuler la mise à jour optimiste
+    const [isPending, startTransition] = useTransition();
+
     const handleLike = async () => {
         // Détermine l'action à effectuer (like ou unlike)
         const action = optimisticState.hasLiked ? "unlike" : "like";
 
-        // Met à jour l'état optimiste immédiatement
-        setOptimisticState(action);
+        // Démarre une transition pour mettre à jour l'état optimiste
+        startTransition(async () => {
+            // Met à jour l'état optimiste immédiatement
+            setOptimisticState(action);
 
-        // Appelle la Server Action pour mettre à jour la base de données
-        const result = await toggleLike(post.id);
+            // Appelle la Server Action pour mettre à jour la base de données
+            const result = await toggleLike(post.id);
 
-        // Si la Server Action échoue, annuler l'état optimiste
-        if (!result || result.message === "Internal server error") {
-            setOptimisticState(optimisticState.hasLiked ? "like" : "unlike"); // Annule l'état optimiste
-        }
+            // Si la Server Action échoue, annuler l'état optimiste
+            if (!result || result.message === "Internal server error") {
+                setOptimisticState(optimisticState.hasLiked ? "like" : "unlike"); // Annule l'état optimiste
+            }
+        });
     };
 
     return (
         <div className='flex justify-between items-center'>
             <div className="flex gap-2">
-            <Image
+                <Image
                     src={optimisticState.hasLiked ? "/assets/icons/liked.svg" : "/assets/icons/like.svg"} // Change l'icône en fonction de l'état
                     alt="like"
                     height={20}
@@ -65,13 +68,10 @@ function PostStats({ post, userId }: { post: Posts[number], userId?: string }) {
                     width={20}
                     onClick={() => { }}
                     className='cursor-pointer'
-
                 />
-
             </div>
-
         </div>
-    )
+    );
 }
 
-export default PostStats
+export default PostStats;

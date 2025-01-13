@@ -10,18 +10,22 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import PostStats from '@/components/shared/PostFeed';
 import { useUsers } from '@/hooks/useUser';
+import { useEffect, useState } from 'react';
+import { getDbUserId } from '@/actions/user.action';
 
 const PostDetails = ({ params }: { params: { id: string } }) => {
   const postId = parseInt(params.id)
-
+  const [currentUserId, setcurrentUserId] = useState('')
   const { user } = useUsers();
   const router = useRouter()
 
-  const { data: post,isPending } = useQuery(
+  const { data: post, isPending } = useQuery(
     {
       queryKey: ["get_post", postId],
       queryFn: async () => {
         try {
+         // const userId=await getDbUserId()
+          //setcurrentUserId(userId!)
           const response = await axios.get(`/api/post/${postId}`);
           return response.data as Posts[number];
         } catch (error) {
@@ -34,11 +38,22 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
   );
 
   const handleDeletePost = () => {
-  console.log(user?.name);
-  
+    console.log(user?.name);
+
   };
 
   console.log(post);
+
+
+  // const getUserId=async()=>{
+  //   const userId=await getDbUserId()
+  //   setcurrentUserId(userId!)
+  // }  
+
+  // useEffect(()=>{
+  // getUserId()
+
+  // },[])
 
 
   return (
@@ -63,7 +78,7 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
       ) : (
         <div className="post_details-card">
           <Image
-            src={post?.img || "" }
+            src={post?.img || ""}
             alt="post image"
             className="post_details-img"
             height={500}
@@ -91,10 +106,9 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
                   </p>
                   <div className="flex-center gap-2 text-light-3">
                     <p className="subtle-semibold lg:small-regular ">
-                      {multiFormatDateString(post?.createdAt.toDateString())}
+                      {multiFormatDateString(post?.createdAt)}
                     </p>
                     •
-
                   </div>
                 </div>
               </Link>
@@ -143,7 +157,7 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
             </div>
 
             <div className="w-full">
-              <PostStats post={post} /> 
+              <PostStats post={post} userId={currentUserId} />
             </div>
           </div>
         </div>

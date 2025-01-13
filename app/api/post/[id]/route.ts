@@ -27,7 +27,7 @@ export async function GET(
                 }, comments: {
                     orderBy: { createdAt: "asc" },
                     include: {
-                        user: {
+                        author: {
                             select: {
                                 id: true, name: true, image: true
                             }
@@ -83,14 +83,14 @@ export async function PUT(
         if (!existingPost) {
             return NextResponse.json({ message: "post not found" }, { status: 404 });
         }
-        if (existingPost.userId != userId) {
+        if (existingPost.authorId != userId) {
             return NextResponse.json({ message: " you are not authorize" }, { status: 404 });
 
         }
         const updatedPost = await prisma.post.update({
             where: { id: existingPost.id },
             data: {
-                userId: existingPost.userId,
+                authorId: existingPost.authorId,
                 desc: desc || existingPost.desc,
                 img: img || existingPost.img,
             }
@@ -123,7 +123,7 @@ export async function DELETE(
         if (!existingPost) {
             return NextResponse.json({ message: "post not found" }, { status: 404 });
         }
-        if (existingPost.userId != userId) {
+        if (existingPost.authorId != userId) {
             return NextResponse.json({ message: " you are not authorize" }, { status: 404 });
         }
         await prisma.post.delete({
