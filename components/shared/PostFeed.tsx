@@ -39,11 +39,12 @@ function PostStats({ post, userId }: { post: Posts[number]; userId?: string }) {
 
             // Appelle la Server Action pour mettre à jour la base de données
             const result = await toggleLike(post.id);
-
-            // Si la Server Action échoue, annuler l'état optimiste
-            if (!result || result.message === "Internal server error") {
-                setOptimisticState(optimisticState.hasLiked ? "like" : "unlike"); // Annule l'état optimiste
-            }
+            console.log(result);
+            
+         //   Si la Server Action échoue, annuler l'état optimiste
+            // if (result.error || !result.status) {
+            //     setOptimisticState(optimisticState.hasLiked ? "like" : "unlike"); // Annule l'état optimiste
+            // }
         });
     };
 

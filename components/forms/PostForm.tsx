@@ -62,7 +62,6 @@ export default function PostForm({ post }: { post?: Post }) {
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof newPostSchema>) {
 
-    console.log(values);
     setIsLoading(true)
 
     const postValues = {

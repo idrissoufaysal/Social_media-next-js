@@ -4,17 +4,21 @@ import Link from "next/link";
 import React from "react";
 import { Button } from "../ui/button";
 import { SignOutButton } from "@clerk/nextjs";
+import { useUsers } from "@/hooks/useUser";
 
-export default function Topbar() {
+export default  function Topbar() {
+  const { user } = useUsers()
+
   return (
     <section className="topbar">
-      <div className="flex-between px-4 py-5">
+      <div className="flex-between px-4 py-5 items-center">
         <Link href="/" className="flex gap-3 items-center">
-          <Image
-            src="assets/images/logo.svg"
+        <Image
+            src={"/assets/images/b13m.png"}
             alt="logo"
-            width={130}
-            height={320}
+            width={170}
+            height={36}
+            className="mb-[-45px] mt-[-40px] ml-[-50px] h-28 w-full"
           />
         </Link>
         <div className="flex gap-4">
@@ -35,7 +39,7 @@ export default function Topbar() {
           </SignOutButton>
           <Link href={"/profile/:id"} className="flex-center gap-3">
             <Image
-              src="assets/icons/profile-placeholder.svg"
+              src={user?.image || "assets/icons/profile-placeholder.svg"}
               alt="profile"
               width={40}
               height={40}

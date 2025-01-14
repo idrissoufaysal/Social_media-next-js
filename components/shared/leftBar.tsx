@@ -19,10 +19,11 @@ export default function LeftBar() {
       <div className="flex flex-col gap-7">
         <Link href="/" className="flex gap-3 items-center">
           <Image
-            src={"assets/images/logo.svg"}
+            src={"/assets/images/b13m.png"}
             alt="logo"
             width={170}
             height={36}
+            className="mb-[-45px] mt-[-40px] ml-[-50px] h-28 w-full"
           />
         </Link>
 

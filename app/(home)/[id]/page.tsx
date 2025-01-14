@@ -1,4 +1,4 @@
-"use client";
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import Image from 'next/image'
 import { Posts } from "@/app/types";
 import Loader from "@/components/shared/Loader";
@@ -7,60 +7,44 @@ import { multiFormatDateString } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import PostStats from '@/components/shared/PostFeed';
-import { useUsers } from '@/hooks/useUser';
-import { useEffect, useState } from 'react';
+import { getPostById } from '@/actions/post.action';
 import { getDbUserId } from '@/actions/user.action';
+import { Suspense } from 'react';
 
-const PostDetails = ({ params }: { params: { id: string } }) => {
+
+const PostDetails =async ({ params }: { params: { id: string } }) => {
   const postId = parseInt(params.id)
-  const [currentUserId, setcurrentUserId] = useState('')
-  const { user } = useUsers();
-  const router = useRouter()
+  const post = await getPostById(postId);
 
-  const { data: post, isPending } = useQuery(
-    {
-      queryKey: ["get_post", postId],
-      queryFn: async () => {
-        try {
-         // const userId=await getDbUserId()
-          //setcurrentUserId(userId!)
-          const response = await axios.get(`/api/post/${postId}`);
-          return response.data as Posts[number];
-        } catch (error) {
-          console.error(error);
-          throw error;
-        } finally {
-        }
-      },
-    }
-  );
+  const currentUserId = await getDbUserId();
 
-  const handleDeletePost = () => {
-    console.log(user?.name);
-
-  };
-
-  console.log(post);
-
-
-  // const getUserId=async()=>{
-  //   const userId=await getDbUserId()
-  //   setcurrentUserId(userId!)
-  // }  
-
-  // useEffect(()=>{
-  // getUserId()
-
-  // },[])
+    const isAuthor = currentUserId === post;
+  // const { data: post, isPending } = useQuery(
+  //   {
+  //     queryKey: ["get_post", postId],
+  //     queryFn: async () => {
+  //       try {
+  //         const response = await axios.get(`/api/post/${postId}`)
+  //         const u = await axios.get("/api/user/getUserId")
+  //         setcurrentUserId(u.data)
+  //         return response.data as Posts[number];
+  //       } catch (error) {
+  //         console.error(error);
+  //         throw error;
+  //       } finally {
+  //       }
+  //     },
+  //   }
+  // );
 
 
   return (
     <div className="post_details-container">
-      <div className="hidden md:flex max-w-5xl w-full">
+      <Suspense fallback={<Loader/>}>
+      <div className="md:flex max-w-5xl w-full">
         <Button
-          onClick={() => { router.back() }}
           variant="ghost"
           className="shad-button_ghost">
           <Image
@@ -73,7 +57,7 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
         </Button>
       </div>
 
-      {isPending || !post ? (
+      {!post ? (
         <Loader />
       ) : (
         <div className="post_details-card">
@@ -113,23 +97,22 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
                 </div>
               </Link>
 
-              <div className={`flex-center gap-4 ${user?.id !== post?.user?.id && "hidden"}`}>
-                <Link
+              <div className={`flex-center gap-4 ${currentUserId !== post?.authorId && "hidden"}`}>
+                {/* <Link
                   href={`/update-post/${post?.id}`}
-                  className={`post_details-delete_btn ${user?.id !== post?.user?.id && "hidden"}`}>
+                  className={`post_details-delete_btn hidden ${currentUserId !== post?.authorId && "hidden"}`}>
                   <Image
                     src={"/assets/icons/edit.svg"}
                     alt="edit"
                     width={24}
                     height={24}
                   />
-                </Link>
+                </Link> */}
 
                 <Button
-                  onClick={handleDeletePost}
                   variant="ghost"
                   size={'icon'}
-                  className={`post_details-delete_btn ${user?.id !== post?.user?.id && "hidden"
+                  className={`post_details-delete_btn hidden ${currentUserId !== post?.authorId && "hidden"
                     }`}>
                   <Image
                     src={"/assets/icons/delete.svg"}
@@ -157,7 +140,7 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
             </div>
 
             <div className="w-full">
-              <PostStats post={post} userId={currentUserId} />
+              <PostStats post={post! || {}} userId={currentUserId || ''} />
             </div>
           </div>
         </div>
@@ -175,6 +158,7 @@ const PostDetails = ({ params }: { params: { id: string } }) => {
           <GridPostList posts={relatedPosts} />
         )} */}
       </div>
+      </Suspense>
     </div>
   );
 };
