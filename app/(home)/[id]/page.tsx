@@ -12,15 +12,18 @@ import PostStats from '@/components/shared/PostFeed';
 import { getPostById } from '@/actions/post.action';
 import { getDbUserId } from '@/actions/user.action';
 import { Suspense } from 'react';
+import BackButton from '@/components/shared/BackButton';
+import PostActions from '@/components/shared/PostActions';
 
 
-const PostDetails =async ({ params }: { params: { id: string } }) => {
+
+const PostDetails = async ({ params }: { params: { id: string } }) => {
   const postId = parseInt(params.id)
-  const post = await getPostById(postId);
+  const post = await getPostById(postId) as Posts[number];
 
   const currentUserId = await getDbUserId();
 
-    const isAuthor = currentUserId === post;
+  const isAuthor = currentUserId === post.authorId;
   // const { data: post, isPending } = useQuery(
   //   {
   //     queryKey: ["get_post", postId],
@@ -40,23 +43,14 @@ const PostDetails =async ({ params }: { params: { id: string } }) => {
   // );
 
 
+
+  if (!post) {
+    redirect('/not-found')
+  }
+
   return (
     <div className="post_details-container">
-      <Suspense fallback={<Loader/>}>
-      <div className="md:flex max-w-5xl w-full">
-        <Button
-          variant="ghost"
-          className="shad-button_ghost">
-          <Image
-            src={"/assets/icons/back.svg"}
-            alt="back"
-            width={24}
-            height={24}
-          />
-          <p className="small-medium lg:base-medium">Back</p>
-        </Button>
-      </div>
-
+      <BackButton />
       {!post ? (
         <Loader />
       ) : (
@@ -97,31 +91,9 @@ const PostDetails =async ({ params }: { params: { id: string } }) => {
                 </div>
               </Link>
 
-              <div className={`flex-center gap-4 ${currentUserId !== post?.authorId && "hidden"}`}>
-                {/* <Link
-                  href={`/update-post/${post?.id}`}
-                  className={`post_details-delete_btn hidden ${currentUserId !== post?.authorId && "hidden"}`}>
-                  <Image
-                    src={"/assets/icons/edit.svg"}
-                    alt="edit"
-                    width={24}
-                    height={24}
-                  />
-                </Link> */}
-
-                <Button
-                  variant="ghost"
-                  size={'icon'}
-                  className={`post_details-delete_btn hidden ${currentUserId !== post?.authorId && "hidden"
-                    }`}>
-                  <Image
-                    src={"/assets/icons/delete.svg"}
-                    alt="delete"
-                    width={24}
-                    height={24}
-                  />
-                </Button>
-              </div>
+              {isAuthor && <PostActions
+                postId={postId!}
+              />}
             </div>
 
             <hr className="border w-full border-dark-4/80" />
@@ -158,7 +130,6 @@ const PostDetails =async ({ params }: { params: { id: string } }) => {
           <GridPostList posts={relatedPosts} />
         )} */}
       </div>
-      </Suspense>
     </div>
   );
 };

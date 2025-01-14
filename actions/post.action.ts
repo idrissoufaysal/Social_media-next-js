@@ -118,7 +118,7 @@ export const getPostById=async(postId:number)=>{
         })
 
         if (!existingPost) {
-            redirect('/not-found');
+            return
         }
 
         return existingPost
