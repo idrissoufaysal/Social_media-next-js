@@ -4,6 +4,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button"; // Assurez-vous d'importer votre composant Button
+import { useState } from "react";
 
 interface PostActionsProps {
     postId: number;
@@ -15,9 +16,13 @@ interface PostActionsProps {
 export default function PostActions({
     postId,
 }: PostActionsProps) {
+
+    const [isDialogOpen, setIsDialogOpen] =useState(false);
+
+
     // Fonction pour gérer la suppression du post
     const handleDelete = async () => {
-
+                // setIsDialogOpen()
         try {
             // Ajoutez ici la logique pour supprimer le post
             console.log("Deleting post with ID:", postId);

@@ -11,9 +11,9 @@ import {
   } from "@/components/ui/alert-dialog"
   import { Button } from "@/components/ui/button"
   
-  export function AlertDialogDemo({open}:{open:boolean}) {
+  export function AlertDialogDemo({isOpen,onChange}:{isOpen:boolean,onChange:(isOpen: boolean)=>void}) {
     return (
-      <AlertDialog>
+      <AlertDialog open={isOpen} onOpenChange={onChange}>
         <AlertDialogTrigger asChild>
           <Button variant="outline"> Dialog</Button>
         </AlertDialogTrigger>
