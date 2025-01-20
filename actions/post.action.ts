@@ -55,7 +55,7 @@ export const getPosts = async () => {
     }
 }
 
-export const createNewPost = async ( img: string,desc: string) => {
+export const createNewPost = async (img: string, desc: string) => {
 
     const userId = await getDbUserId();
     if (userId == null) return
@@ -63,7 +63,7 @@ export const createNewPost = async ( img: string,desc: string) => {
     try {
         const newPost = await prisma.post.create({ data: { desc, img, authorId: userId } })
         revalidatePath('/')
-        return { success:true, post: newPost }
+        return { success: true, post: newPost }
     } catch (error) {
         console.log(error);
 
@@ -74,7 +74,7 @@ export const createNewPost = async ( img: string,desc: string) => {
     }
 }
 
-export const getPostById=async(postId:number)=>{
+export const getPostById = async (postId: number) => {
     if (isNaN(postId)) {
         // Si l'ID n'est pas un nombre valide
         redirect('/not-found');
@@ -118,7 +118,7 @@ export const getPostById=async(postId:number)=>{
         })
 
         if (!existingPost) {
-            return
+            redirect('/not-found');
         }
 
         return existingPost
@@ -133,13 +133,13 @@ export const getPostById=async(postId:number)=>{
 export const toggleLike = async (postId: number) => {
 
     if (isNaN(postId)) {
-        return { message: "Invalid post ID",status:false }
+        return { message: "Invalid post ID", status: false }
     }
 
     try {
-        const userId  = await getDbUserId()
+        const userId = await getDbUserId()
         if (!userId) {
-            return { message: 'User not authenticated',status:false }
+            return { message: 'User not authenticated', status: false }
         }
 
         // Vérifiez que l'utilisateur existe
@@ -148,7 +148,7 @@ export const toggleLike = async (postId: number) => {
         });
 
         if (!user) {
-            return { message: 'User not found' ,status:false}
+            return { message: 'User not found', status: false }
         }
 
         // Vérifiez que le post existe
@@ -157,9 +157,13 @@ export const toggleLike = async (postId: number) => {
         });
 
         if (!post) {
-            return { message: "Post not found",status:false }
+            return { message: "Post not found", status: false }
         }
 
+        const countLike=await prisma.like.count()
+        console.log(countLike);
+        
+        
         // Vérifiez si le like existe déjà
         const existingLike = await prisma.like.findUnique({
             where: {
@@ -179,7 +183,9 @@ export const toggleLike = async (postId: number) => {
                 },
             });
             revalidatePath('/')
-            return { message: 'liked',status:true }
+            revalidatePath(`/post/${postId}`);
+
+            return { message: 'liked', status: true,likes:countLike,hasLiked:true }
 
         } else {
             // Supprime le like si déjà présent (unlike)
@@ -187,12 +193,13 @@ export const toggleLike = async (postId: number) => {
                 where: { id: existingLike.id },
             });
             revalidatePath('/')
-            return { message: 'removed',status:true }
+            revalidatePath(`/post/${postId}`);
+            return { message: 'removed', status: true,likes:countLike,hasLiked:false }
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
         console.error('Error in POST /api/post/:id/like:', error.message);
-        return { message: 'Internal server error', error: error.message,status:false }
+        return { message: 'Internal server error', error: error.message, status: false }
     }
 
 }

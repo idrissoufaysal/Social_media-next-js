@@ -84,13 +84,12 @@ const PostDetails = async ({ params }: { params: { id: string } }) => {
                   </p>
                   <div className="flex-center gap-2 text-light-3">
                     <p className="subtle-semibold lg:small-regular ">
-                      {multiFormatDateString(post?.createdAt)}
+                      {multiFormatDateString(post?.createdAt.toString())}
                     </p>
                     •
                   </div>
                 </div>
               </Link>
-
               {isAuthor && <PostActions
                 postId={postId!}
               />}

@@ -1,16 +1,13 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
+
 import { Posts } from '@/app/types';
 import Image from 'next/image';
 import { useOptimistic, useState, useTransition } from 'react';
 import { toggleLike } from '@/actions/post.action';
 
 function PostStats({ post, userId }: { post: Posts[number]; userId?: string }) {
-    
-
-    const [hasLiked, setisHasLiked] = useState(post.likes?.some((like) => like.userId === userId));
-    const [isliking, setisLiking] = useState(false);
-    const [likes, setlikes] = useState(post._count?.likes);
+    const [hasLiked, setHasLiked] = useState(post.likes?.some((like) => like.userId === userId));
+    const [likes, setLikes] = useState(post._count?.likes);
 
     // Utilisation de useOptimistic pour gérer l'état optimiste
     const [optimisticState, setOptimisticState] = useOptimistic(
@@ -37,14 +34,24 @@ function PostStats({ post, userId }: { post: Posts[number]; userId?: string }) {
             // Met à jour l'état optimiste immédiatement
             setOptimisticState(action);
 
-            // Appelle la Server Action pour mettre à jour la base de données
-            const result = await toggleLike(post.id);
-            console.log(result);
-            
-         //   Si la Server Action échoue, annuler l'état optimiste
-            // if (result.error || !result.status) {
-            //     setOptimisticState(optimisticState.hasLiked ? "like" : "unlike"); // Annule l'état optimiste
-            // }
+            try {
+                // Appelle la Server Action pour mettre à jour la base de données
+                const result = await toggleLike(post.id);
+                console.log(result);
+
+                // Si la Server Action réussit, met à jour les états locaux
+                if (result.status) {
+                    setHasLiked(action === "like"? true :false);
+                    setLikes(hasLiked ? prev => prev - 1 : prev => prev + 1);
+                } else {
+                    // Si la Server Action échoue, annule l'état optimiste
+                    setOptimisticState(optimisticState.hasLiked ? "like" : "unlike");
+                }
+            } catch (error) {
+                console.error("Failed to toggle like:", error);
+                // Annule l'état optimiste en cas d'erreur
+                setOptimisticState(optimisticState.hasLiked ? "like" : "unlike");
+            }
         });
     };
 
@@ -57,9 +64,9 @@ function PostStats({ post, userId }: { post: Posts[number]; userId?: string }) {
                     height={20}
                     width={20}
                     onClick={handleLike}
-                    className="cursor-pointer"
-                />
-                <p className='small-medium lg:base-medium'>{optimisticState.likes}</p>
+                    className={`cursor-pointer ${isPending ? "opacity-50" : ""}`} />
+
+                <p className='small-medium lg:base-medium'>{ optimisticState.likes}</p>
             </div>
             <div className="flex gap-2">
                 <Image

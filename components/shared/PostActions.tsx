@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 // components/PostActions.tsx
 "use client"; // Indique que ce composant est un Client Component
 

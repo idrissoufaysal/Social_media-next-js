@@ -1,72 +1,10 @@
-"use client"
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import {
-  Form,FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import Loader from "@/components/shared/Loader";
-import { loginValidation } from "@/lib/validations";
 
 const LoginPage = () => {
-  const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string>("");
-  const router = useRouter();
-
-  const form = useForm<z.infer<typeof loginValidation>>({
-    resolver: zodResolver(loginValidation),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
-  });
-
-  async function onSubmit(values: z.infer<typeof loginValidation>) {
-    setIsLoading(true);
-    setErrorMessage("");
-
-    try {
-      const result = await signIn("credentials", {
-        redirect: false,
-        email: values.email,
-        password: values.password,
-      });
-
-      if (!result) {
-        throw new Error("Erreur de connexion");
-      }
-
-      if (result.error) {
-        setErrorMessage(" Erreur pour l'authentification ");
-        return;
-      }
-
-      if (result.ok) {
-        router.push("/");
-        router.refresh();
-      }
-    } catch (error) {
-      console.error("Erreur de connexion:", error);
-      setErrorMessage("Une erreur est survenue lors de la connexion");
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
+ 
   return (
     <div className="flex justify-center items-center w-screen h-screen">
-      <div className="w-1/2 flex flex-col items-center justify-between">
+
+      {/* <div className="w-1/2 flex flex-col items-center justify-between">
         <Form {...form}>
           <div className="flex-center sm:w-420 flex-col">
             <Image
@@ -146,7 +84,9 @@ const LoginPage = () => {
           </div>
         </Form>
       </div>
-      <div className="w-1/2"></div>
+      <div className="w-1/2"></div> */}
+    
+    
     </div>
   );
 }
