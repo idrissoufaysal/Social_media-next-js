@@ -20,8 +20,13 @@ export const getPosts = async () => {
                             username: true,
                             image: true,
                             email: true
-                        }
-                    }, comments: {
+                        },
+                        
+                    },
+                    favorie:{
+
+                    }
+                    ,comments: {
                         orderBy: { createdAt: "asc" },
                         include: {
                             author: {
@@ -41,7 +46,8 @@ export const getPosts = async () => {
                     _count: {
                         select: {
                             comments: true,
-                            likes: true
+                            likes: true,
+                            favorie:true
                         }
                     }
                 }
@@ -106,12 +112,15 @@ export const getPostById = async (postId: number) => {
 
                     },
 
-
+                },
+                favorie:{
+                    
                 },
                 _count: {
                     select: {
                         comments: true,
-                        likes: true
+                        likes: true,
+                        favorie:true
                     }
                 }
             }
@@ -202,6 +211,77 @@ export const toggleLike = async (postId: number) => {
         return { message: 'Internal server error', error: error.message, status: false }
     }
 
+}
+
+export const toggleFavorit=async(postId:number)=>{
+    if (isNaN(postId)) {
+        return { message: "Invalid post ID", status: false }
+    }
+
+    try {
+        const userId = await getDbUserId()
+        if (!userId) {
+            return { message: 'User not authenticated', status: false }
+        }
+
+        // Vérifiez que l'utilisateur existe
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            return { message: 'User not found', status: false }
+        }
+
+        // Vérifiez que le post existe
+        const post = await prisma.post.findUnique({
+            where: { id: postId },
+        });
+
+        if (!post) {
+            return { message: "Post not found", status: false }
+        }
+
+        const countFavorie=await prisma.favorie.count({where:{postId}})
+        console.log(countFavorie);
+        
+        
+        // Vérifiez si le favorie existe déjà
+        const existingFav = await prisma.favorie.findUnique({
+            where: {
+                userId_postId: {
+                    userId,
+                    postId
+                },
+            },
+        });
+
+        if (!existingFav) {
+            // Ajoute un Favorie
+            await prisma.favorie.create({
+                data: {
+                    userId,
+                    postId
+                },
+            });
+            revalidatePath(`/post/${postId}`);
+            revalidatePath('/')
+            return { message: 'add', status: true,favories:countFavorie,hasFav:true }
+
+        } else {
+            // Supprime le favorie si déjà présent (unFavorie)
+            await prisma.favorie.delete({
+                where: { id: existingFav.id },
+            });
+            revalidatePath(`/post/${postId}`);
+            revalidatePath('/')
+            return { message: 'removed', status: true,favories:countFavorie,hasFav:false }
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+        console.error('Error in POST /api/post/:id/like:', error.message);
+        return { message: 'Internal server error', error: error.message, status: false }
+    }
 }
 
 

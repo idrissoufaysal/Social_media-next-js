@@ -66,6 +66,8 @@ model Favorie {
   userId    String
   post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
   postId    Int
+  @@unique([userId, postId])
+
 }
 
 model Comment {
@@ -89,7 +91,6 @@ model Like {
   postId    Int?
   Comment   Comment? @relation(fields: [commentId], references: [id], onDelete: Cascade)
   commentId Int?
-
   @@unique([userId, postId])
 }
 

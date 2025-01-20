@@ -3,82 +3,85 @@
 import { Posts } from '@/app/types';
 import Image from 'next/image';
 import { useOptimistic, useState, useTransition } from 'react';
-import { toggleLike } from '@/actions/post.action';
+import { toggleFavorit, toggleLike } from '@/actions/post.action';
 
 function PostStats({ post, userId }: { post: Posts[number]; userId?: string }) {
     const [hasLiked, setHasLiked] = useState(post.likes?.some((like) => like.userId === userId));
     const [likes, setLikes] = useState(post._count?.likes);
+    const [optimisticLikes, setOptimisticLikes] = useState(post._count?.likes);
 
-    // Utilisation de useOptimistic pour gérer l'état optimiste
-    const [optimisticState, setOptimisticState] = useOptimistic(
-        { likes, hasLiked }, // État initial
-        (state, action: "like" | "unlike") => {
-            // Fonction de réduction pour mettre à jour l'état optimiste
-            if (action === "like") {
-                return { likes: state.likes + 1, hasLiked: true };
-            } else {
-                return { likes: state.likes - 1, hasLiked: false };
-            }
-        }
-    );
+    const [hasFav, setHasFav] = useState(post.favorie?.some((fav) => fav.userId === userId));
+    const [favs, setFavs] = useState(post._count?.favorie);
+
+
+
 
     // Utilisation de useTransition pour encapsuler la mise à jour optimiste
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [isPending, startTransition] = useTransition();
+    const [isPendingFavs, startTransitionFav] = useTransition();
 
-    const handleLike = async () => {
-        // Détermine l'action à effectuer (like ou unlike)
-        const action = optimisticState.hasLiked ? "unlike" : "like";
+    const handleLike = async (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
 
-        // Démarre une transition pour mettre à jour l'état optimiste
-        startTransition(async () => {
-            // Met à jour l'état optimiste immédiatement
-            setOptimisticState(action);
+        try {
+            setHasLiked(!hasLiked)
+            setOptimisticLikes(prev => prev + (hasLiked ? -1 : + 1))
+           const result= await toggleLike(post.id)
+           console.log(result);
+           
+        } catch (error) {
+            setHasLiked(post.likes?.some((like) => like.userId === userId))
+            setLikes(post._count?.likes)
+        } finally {
 
-            try {
-                // Appelle la Server Action pour mettre à jour la base de données
-                const result = await toggleLike(post.id);
-                console.log(result);
-
-                // Si la Server Action réussit, met à jour les états locaux
-                if (result.status) {
-                    setHasLiked(action === "like"? true :false);
-                    setLikes(hasLiked ? prev => prev - 1 : prev => prev + 1);
-                } else {
-                    // Si la Server Action échoue, annule l'état optimiste
-                    setOptimisticState(optimisticState.hasLiked ? "like" : "unlike");
-                }
-            } catch (error) {
-                console.error("Failed to toggle like:", error);
-                // Annule l'état optimiste en cas d'erreur
-                setOptimisticState(optimisticState.hasLiked ? "like" : "unlike");
-            }
-        });
+        }
     };
 
+    const handleFavorie = async (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        startTransitionFav(async () => {
+            const res = await toggleFavorit(post?.id)
+            console.log(res);
+            if (res.status) {
+                setHasFav(!hasFav)
+                setFavs(hasFav ? prev => prev - 1 : prev => prev + 1)
+            }
+        })
+
+    }
     return (
         <div className='flex justify-between items-center'>
-            <div className="flex gap-2">
+            <div className="flex gap-2" onClick={handleLike}>
                 <Image
-                    src={optimisticState.hasLiked ? "/assets/icons/liked.svg" : "/assets/icons/like.svg"} // Change l'icône en fonction de l'état
+                    src={hasLiked ? "/assets/icons/liked.svg" : "/assets/icons/like.svg"} // Change l'icône en fonction de l'état
                     alt="like"
                     height={20}
                     width={20}
-                    onClick={handleLike}
-                    className={`cursor-pointer ${isPending ? "opacity-50" : ""}`} />
 
-                <p className='small-medium lg:base-medium'>{ optimisticState.likes}</p>
+                    className='cursor-pointer' />
+
+                <p className='small-medium lg:base-medium'>{optimisticLikes}</p>
             </div>
-            <div className="flex gap-2">
-                <Image
-                    src={'/assets/icons/save.svg'}
-                    alt='favorite'
-                    height={20}
-                    width={20}
-                    onClick={() => { }}
-                    className='cursor-pointer'
-                />
+            <div className="flex gap-2" onClick={handleFavorie}>
+
+                {isPendingFavs ? <Image src="/assets/icons/loader.svg"
+                    alt='loader'
+                    width={27}
+                    height={27} /> : <><Image
+                        src={hasFav ? '/assets/icons/saved.svg' : '/assets/icons/save.svg'}
+                        alt='favorite'
+                        height={20}
+                        width={20}
+
+                        className='cursor-pointer'
+                    />
+                    <span> {favs}</span> </>
+                }
             </div>
-        </div>
+        </div >
     );
 }
 
