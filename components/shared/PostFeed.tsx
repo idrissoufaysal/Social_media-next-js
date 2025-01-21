@@ -2,17 +2,19 @@
 
 import { Posts } from '@/app/types';
 import Image from 'next/image';
-import { useOptimistic, useState, useTransition } from 'react';
+import { useState, useTransition } from 'react';
 import { toggleFavorit, toggleLike } from '@/actions/post.action';
+import { MessageCircle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 
-function PostStats({ post, userId }: { post: Posts[number]; userId?: string }) {
+
+function PostStats({ post, userId,open }: { post: Posts[number]; userId?: string,open?:boolean }) {
     const [hasLiked, setHasLiked] = useState(post.likes?.some((like) => like.userId === userId));
-    const [likes, setLikes] = useState(post._count?.likes);
     const [optimisticLikes, setOptimisticLikes] = useState(post._count?.likes);
 
     const [hasFav, setHasFav] = useState(post.favorie?.some((fav) => fav.userId === userId));
     const [favs, setFavs] = useState(post._count?.favorie);
-
+    const [comments, setComments] = useState(post._count?.comments);
 
 
 
@@ -28,12 +30,11 @@ function PostStats({ post, userId }: { post: Posts[number]; userId?: string }) {
         try {
             setHasLiked(!hasLiked)
             setOptimisticLikes(prev => prev + (hasLiked ? -1 : + 1))
-           const result= await toggleLike(post.id)
-           console.log(result);
-           
+            const result = await toggleLike(post.id)
+            console.log(result);
         } catch (error) {
             setHasLiked(post.likes?.some((like) => like.userId === userId))
-            setLikes(post._count?.likes)
+            setOptimisticLikes(post._count?.likes)
         } finally {
 
         }
@@ -54,17 +55,25 @@ function PostStats({ post, userId }: { post: Posts[number]; userId?: string }) {
     }
     return (
         <div className='flex justify-between items-center'>
-            <div className="flex gap-2" onClick={handleLike}>
-                <Image
-                    src={hasLiked ? "/assets/icons/liked.svg" : "/assets/icons/like.svg"} // Change l'icône en fonction de l'état
-                    alt="like"
-                    height={20}
-                    width={20}
+            <div className="flex gap-7 items-center">
 
-                    className='cursor-pointer' />
+                <div className="flex gap-1 items-center" onClick={handleLike}>
+                    <Image
+                        src={hasLiked ? "/assets/icons/liked.svg" : "/assets/icons/like.svg"} // Change l'icône en fonction de l'état
+                        alt="like"
+                        height={25}
+                        width={25}
 
-                <p className='small-medium lg:base-medium'>{optimisticLikes}</p>
+                        className='cursor-pointer' />
+
+                    <p className='small-medium lg:base-medium'>{optimisticLikes}</p>
+                </div>
+                <div className="flex gap-1 items-center">
+                    <MessageCircle className='text-primary-600 fill-current' />
+                    <span>{comments}</span>
+                </div>
             </div>
+
             <div className="flex gap-2" onClick={handleFavorie}>
 
                 {isPendingFavs ? <Image src="/assets/icons/loader.svg"
@@ -75,7 +84,6 @@ function PostStats({ post, userId }: { post: Posts[number]; userId?: string }) {
                         alt='favorite'
                         height={20}
                         width={20}
-
                         className='cursor-pointer'
                     />
                     <span> {favs}</span> </>
