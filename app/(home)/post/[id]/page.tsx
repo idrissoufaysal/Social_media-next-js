@@ -120,7 +120,6 @@ const PostDetails = async ({ params }: { params: { id: string } }) => {
 
       <div className="w-full max-w-5xl">
         <hr className="border w-full border-dark-4/80" />
-        <Comments post={post} userId={currentUserId as string} />
         <h3 className="body-bold md:h3-bold w-full my-10">
           More Related Posts
         </h3>

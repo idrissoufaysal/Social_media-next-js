@@ -27,7 +27,7 @@ export const getPosts = async () => {
 
                     }
                     ,comments: {
-                        orderBy: { createdAt: "asc" },
+                        orderBy: { createdAt: "desc" },
                         include: {
                             author: {
                                 select: {
@@ -98,7 +98,7 @@ export const getPostById = async (postId: number) => {
                         email: true
                     }
                 }, comments: {
-                    orderBy: { createdAt: "asc" },
+                    orderBy: { createdAt: "desc" },
                     include: {
                         author: {
                             select: {

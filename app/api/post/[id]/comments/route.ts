@@ -1,4 +1,6 @@
+import { getDbUserId } from "@/actions/user.action";
 import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
 
@@ -37,13 +39,15 @@ export const GET = async (
 
 export const POST = async (req: NextRequest,{ params }: { params: { id: string } }) => {
     const postId = parseInt(params.id);
+    
 
     if (isNaN(postId)) {
         // Si l'ID n'est pas un nombre valide
         return NextResponse.json({ message: "Invalid post ID" }, { status: 400 });
     }
     try {
-
+        const userId=await getDbUserId()
+        if(!userId) return
         const existingPost = await prisma.post.findUnique({ where: { id: postId } })
 
         if (!existingPost) {
@@ -55,10 +59,10 @@ export const POST = async (req: NextRequest,{ params }: { params: { id: string }
             data: {
                 desc,
                 postId,
-                userId: 'ddsad556', // Assuming req.cookies.userId exists and is valid
+                authorId:userId, // Assuming req.cookies.userId exists and is valid
             }
         })
-
+        revalidatePath(`/post/${postId}`);
         return NextResponse.json(newComment, { status: 201 });
 
     } catch (error) {
