@@ -1,22 +1,22 @@
 "use client"
-
 import { useState } from "react";
-import { Card } from "../ui/card";
-import Image from "next/image";
 import { Posts } from "@/app/types";
 import { multiFormatDateString } from "@/lib/utils";
-import { MessageCircle, SendIcon } from 'lucide-react';
-import { Avatar, AvatarFallback } from '../ui/avatar';
+import { SendIcon } from 'lucide-react';
+import { Avatar } from '../ui/avatar';
 import { AvatarImage } from '../ui/avatar';
 import { Button } from "../ui/button";
 import { useUser } from "@clerk/nextjs";
 import { Textarea } from "../ui/textarea";
 import axios from "axios";
+import { useToast } from "@/hooks/use-toast";
 
-export default function Comments({ post, userId, open }: { post: Posts[number]; userId?: string, open?: boolean }) {
+export default function Comments({ post }: { post: Posts[number] }) {
 
     const [newComment, setNewComment] = useState('')
     const [isCommenting, setIsCommenting] = useState(false)
+    const { toast } = useToast()
+
     const { user } = useUser()
 
     const handleAddComment = async () => {
@@ -25,9 +25,14 @@ export default function Comments({ post, userId, open }: { post: Posts[number]; 
             setIsCommenting(true)
            const res= await axios.post(`/api/post/${post.id}/comments`,{desc:newComment})
            console.log(res.data);
-           setIsCommenting(false)
-           setNewComment('')
-           
+           if(res.data){
+            toast({
+                title: "Success",
+                description: "comment add succesfully",
+              })
+              setIsCommenting(false)
+              setNewComment('')
+           }
         } catch (error) {
             console.log(error);
            throw new Error('someThing went wrong')
@@ -41,7 +46,7 @@ export default function Comments({ post, userId, open }: { post: Posts[number]; 
     return (
         <div className="space-y-4 pt-4 " onClick={(e) => { e.preventDefault, e.stopPropagation() }}>
             <hr className="border w-full border-dark-4/80" />
-            <div className="space-y-4 max-h-28 overflow-auto">
+            <div className="space-y-4 max-h-28 overflow-scroll custom-scrollbar">
                 {/* DISPLAY COMMENTS */}
                 {post.comments.map((comment) => (
                     <div key={comment.id} className="flex space-x-3">
@@ -79,7 +84,7 @@ export default function Comments({ post, userId, open }: { post: Posts[number]; 
                             <Button
                                 size="sm"
                                 onClick={handleAddComment}
-                                className="flex items-center gap-2"
+                                className="flex items-center gap-2 bg-white text-black"
                                 disabled={!newComment.trim() || isCommenting}
                             >
                                 {isCommenting ? (

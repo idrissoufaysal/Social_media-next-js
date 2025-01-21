@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { Posts } from '@/app/types';
@@ -5,22 +6,17 @@ import Image from 'next/image';
 import { useState, useTransition } from 'react';
 import { toggleFavorit, toggleLike } from '@/actions/post.action';
 import { MessageCircle } from 'lucide-react';
-import { Avatar, AvatarFallback } from '../ui/avatar';
-import { AvatarImage } from '../ui/avatar';
-import { useUser } from '@clerk/nextjs';
-import { multiFormatDateString } from '@/lib/utils';
 import Comments from './Comments';
 
 
-function PostStats({ post, userId, open }: { post: Posts[number]; userId?: string, open?: boolean }) {
+function PostStats({ post, userId,  }: { post: Posts[number]; userId?: string}) {
     const [hasLiked, setHasLiked] = useState(post.likes?.some((like) => like.userId === userId));
     const [optimisticLikes, setOptimisticLikes] = useState(post._count?.likes);
 
     const [hasFav, setHasFav] = useState(post.favorie?.some((fav) => fav.userId === userId));
     const [favs, setFavs] = useState(post._count?.favorie);
-    const [comments, setComments] = useState(post._count?.comments);
+    const [comments] = useState(post._count?.comments);
     const [showComments, setShowComments] = useState(false)
-    const { user } = useUser()
 
 
 

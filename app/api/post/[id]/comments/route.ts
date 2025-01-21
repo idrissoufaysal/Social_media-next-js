@@ -62,7 +62,9 @@ export const POST = async (req: NextRequest,{ params }: { params: { id: string }
                 authorId:userId, // Assuming req.cookies.userId exists and is valid
             }
         })
-        revalidatePath(`/post/${postId}`);
+        
+         revalidatePath(`/post/${postId}`); // Revalide la page du post
+         revalidatePath('/'); // Revalide la page d'accueil
         return NextResponse.json(newComment, { status: 201 });
 
     } catch (error) {

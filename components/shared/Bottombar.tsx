@@ -11,7 +11,6 @@ export default function Bottombar() {
   
 
   return (
-
     <section className='bottom-bar'>
       {bottombarLinks.map((link: INavLink) => {
                     const isActive=pathname===link.route
