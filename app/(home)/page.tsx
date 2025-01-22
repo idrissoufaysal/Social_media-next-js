@@ -1,4 +1,4 @@
-import PostCard from "@/components/shared/PostCard";
+import PostCard from "@/components/shared/containers/PostCard";
 import Link from "next/link";
 import React from "react";
 import { Posts } from "../types";

@@ -5,7 +5,7 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Textarea } from "../ui/textarea";
-import FileUploader from "../shared/FileUploader";
+import FileUploader from "../shared/containers/FileUploader";
 import { newPostSchema } from "@/lib/validations";
 import { Post } from "@/app/types";
 import { useState } from "react";

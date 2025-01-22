@@ -8,13 +8,13 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import Link from "next/link";
 import { redirect, useRouter } from "next/navigation";
-import PostStats from '@/components/shared/PostFeed';
+import PostStats from '@/components/shared/containers/PostFeed';
 import { getPostById } from '@/actions/post.action';
 import { getDbUserId } from '@/actions/user.action';
 import { Suspense } from 'react';
-import BackButton from '@/components/shared/BackButton';
-import PostActions from '@/components/shared/PostActions';
-import Comments from '@/components/shared/Comments';
+import BackButton from '@/components/shared/buttonComponents/BackButton';
+import PostActions from '@/components/shared/buttonComponents/PostActions';
+import Comments from '@/components/shared/containers/Comments';
 
 
 

@@ -1,47 +1,53 @@
 "use client"
-import { useState } from "react";
+import React, { useState } from "react";
 import { Posts } from "@/app/types";
 import { multiFormatDateString } from "@/lib/utils";
 import { SendIcon } from 'lucide-react';
-import { Avatar } from '../ui/avatar';
-import { AvatarImage } from '../ui/avatar';
-import { Button } from "../ui/button";
+import { Avatar } from '../../ui/avatar';
+import { AvatarImage } from '../../ui/avatar';
+import { Button } from "../../ui/button";
 import { useUser } from "@clerk/nextjs";
-import { Textarea } from "../ui/textarea";
+import { Textarea } from "../../ui/textarea";
 import axios from "axios";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 export default function Comments({ post }: { post: Posts[number] }) {
 
     const [newComment, setNewComment] = useState('')
     const [isCommenting, setIsCommenting] = useState(false)
     const { toast } = useToast()
-
+   const router=useRouter()
     const { user } = useUser()
 
-    const handleAddComment = async () => {
-        if(isCommenting) return
+    const handleAddComment = async (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        if (isCommenting) return
         try {
             setIsCommenting(true)
-           const res= await axios.post(`/api/post/${post.id}/comments`,{desc:newComment})
-           console.log(res.data);
-           if(res.data){
-            toast({
-                title: "Success",
-                description: "comment add succesfully",
-              })
-              setIsCommenting(false)
-              setNewComment('')
-           }
+            const res = await axios.post(`/api/post/${post.id}/comments`, { desc: newComment })
+            if (res.data) {
+                toast({
+                    title: "Success",
+                    description: "comment add succesfully",
+                })
+                setIsCommenting(false)
+                setNewComment('')
+                router.refresh()
+            }
         } catch (error) {
             console.log(error);
-           throw new Error('someThing went wrong')
+            throw new Error('someThing went wrong')
         }
-        finally{
+        finally {
             setIsCommenting(false)
         }
     }
-
+    const clicke = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+    }
 
     return (
         <div className="space-y-4 pt-4 " onClick={(e) => { e.preventDefault, e.stopPropagation() }}>
@@ -70,6 +76,7 @@ export default function Comments({ post }: { post: Posts[number] }) {
             </div>
             {user && (
                 <div className="flex space-x-3">
+
                     <Avatar className="size-8 flex-shrink-0">
                         <AvatarImage src={user?.imageUrl || "/avatar.png"} />
                     </Avatar>
@@ -79,6 +86,7 @@ export default function Comments({ post }: { post: Posts[number] }) {
                             value={newComment}
                             onChange={(e) => setNewComment(e.target.value)}
                             className="min-h-[80px] resize-none"
+                            onClick={clicke}
                         />
                         <div className="flex justify-end mt-2">
                             <Button

@@ -1,4 +1,7 @@
+import { getDbUserId } from "@/actions/user.action";
 import prisma from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { NextRequest, NextResponse } from "next/server";
 
 
@@ -115,9 +118,10 @@ export async function DELETE(
         // Si l'ID n'est pas un nombre valide
         return NextResponse.json({ message: "Invalid post ID" }, { status: 400 });
     }
-    const { userId } = await req.json();
 
     try {
+        const userId=await getDbUserId()
+
         const existingPost = await prisma.post.findFirst({ where: { id: postId } })
 
         if (!existingPost) {
@@ -129,7 +133,8 @@ export async function DELETE(
         await prisma.post.delete({
             where: { id: existingPost.id },
         })
-
+        revalidatePath('/')
+        redirect('/')
         return NextResponse.json({ message: "Post deleted succefully" }, { status: 200 });
 
     } catch (error) {

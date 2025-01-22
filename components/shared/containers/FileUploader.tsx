@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import Loader from './Loader'
+import Loader from '../Loader'
 import { SetStateAction, Dispatch } from 'react';
 import { UploadButton } from '@/utils/uploadthing';
 import { useLoading } from '@/hooks/useLoading';

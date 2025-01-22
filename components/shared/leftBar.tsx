@@ -15,7 +15,7 @@ export default function LeftBar() {
 
 
   return (
-    <nav className="leftsidebar ">
+    <nav className="leftsidebar">
       <div className="flex flex-col gap-7">
         <Link href="/" className="flex gap-3 items-center">
           <Image

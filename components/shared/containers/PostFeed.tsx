@@ -5,11 +5,11 @@ import { Posts } from '@/app/types';
 import Image from 'next/image';
 import { useState, useTransition } from 'react';
 import { toggleFavorit, toggleLike } from '@/actions/post.action';
-import { MessageCircle } from 'lucide-react';
+import { Heading4, MessageCircle } from 'lucide-react';
 import Comments from './Comments';
 
 
-function PostStats({ post, userId,  }: { post: Posts[number]; userId?: string}) {
+function PostStats({ post, userId,onClik }: { post: Posts[number]; userId?: string;onClik?:()=>void}) {
     const [hasLiked, setHasLiked] = useState(post.likes?.some((like) => like.userId === userId));
     const [optimisticLikes, setOptimisticLikes] = useState(post._count?.likes);
 
@@ -17,8 +17,6 @@ function PostStats({ post, userId,  }: { post: Posts[number]; userId?: string}) 
     const [favs, setFavs] = useState(post._count?.favorie);
     const [comments] = useState(post._count?.comments);
     const [showComments, setShowComments] = useState(false)
-
-
 
     // Utilisation de useTransition pour encapsuler la mise à jour optimiste
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -61,8 +59,14 @@ function PostStats({ post, userId,  }: { post: Posts[number]; userId?: string}) 
         e.stopPropagation()
         setShowComments(prev => !prev)
     }
+
+    const handleClicke=(e:React.MouseEvent)=>{
+  e.preventDefault()
+  e.stopPropagation()
+    }
+    
     return (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4" onClick={handleClicke}>
 
             <div className='flex justify-between items-center'>
                 <div className="flex gap-7 items-center">
@@ -73,13 +77,13 @@ function PostStats({ post, userId,  }: { post: Posts[number]; userId?: string}) 
                             alt="like"
                             height={25}
                             width={25}
-
-                            className='cursor-pointer' />
+                            className='cursor-pointer' 
+                        />
 
                         <p className='small-medium lg:base-medium'>{optimisticLikes}</p>
                     </div>
                     <div className="flex gap-1 items-center" onClick={handleOpenComment}>
-                        <MessageCircle className={!showComments ? 'text-gray-300' : 'text-blue-600 fill-current'} />
+                        <MessageCircle className={!showComments ? 'text-gray-300' : 'text-blue-500 fill-current'} />
                         <span>{comments}</span>
                     </div>
                 </div>

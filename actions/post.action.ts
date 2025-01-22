@@ -2,7 +2,7 @@
 import prisma from "@/lib/prisma";
 import { getDbUserId } from "./user.action";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 
 export const getPosts = async () => {
@@ -21,12 +21,12 @@ export const getPosts = async () => {
                             image: true,
                             email: true
                         },
-                        
+
                     },
-                    favorie:{
+                    favorie: {
 
                     }
-                    ,comments: {
+                    , comments: {
                         orderBy: { createdAt: "desc" },
                         include: {
                             author: {
@@ -47,7 +47,7 @@ export const getPosts = async () => {
                         select: {
                             comments: true,
                             likes: true,
-                            favorie:true
+                            favorie: true
                         }
                     }
                 }
@@ -113,21 +113,21 @@ export const getPostById = async (postId: number) => {
                     },
 
                 },
-                favorie:{
-                    
+                favorie: {
+
                 },
                 _count: {
                     select: {
                         comments: true,
                         likes: true,
-                        favorie:true
+                        favorie: true
                     }
                 }
             }
         })
 
         if (!existingPost) {
-            redirect('/not-found');
+        return  notFound()
         }
 
         return existingPost
@@ -135,6 +135,36 @@ export const getPostById = async (postId: number) => {
     } catch (error) {
         console.log(error);
         throw new Error("An error occurred in /api/post/:id (GET)")
+    }
+}
+
+export const deletePost = async (postId:number) => {
+
+    if (isNaN(postId)) {
+        // Si l'ID n'est pas un nombre valide
+        throw new Error("Invalid Id")
+    }
+
+    try {
+        const userId = await getDbUserId()
+
+        const existingPost = await prisma.post.findFirst({ where: { id: postId } })
+
+        if (!existingPost) {
+           throw new Error("Post not found")
+        }
+        if (existingPost.authorId != userId) {
+            throw new Error("you are not authorized")
+        }
+        await prisma.post.delete({
+            where: { id: existingPost.id },
+        })
+        redirect('/')
+        return { message: "Post deleted succefully" }
+
+    } catch (error) {
+        console.log(error);
+        return { message: "An error occurred in /api/post/:id (DELETE)" }
     }
 }
 
@@ -169,10 +199,10 @@ export const toggleLike = async (postId: number) => {
             return { message: "Post not found", status: false }
         }
 
-        const countLike=await prisma.like.count()
+        const countLike = await prisma.like.count()
         console.log(countLike);
-        
-        
+
+
         // Vérifiez si le like existe déjà
         const existingLike = await prisma.like.findUnique({
             where: {
@@ -194,7 +224,7 @@ export const toggleLike = async (postId: number) => {
             revalidatePath('/')
             revalidatePath(`/post/${postId}`);
 
-            return { message: 'liked', status: true,likes:countLike,hasLiked:true }
+            return { message: 'liked', status: true, likes: countLike, hasLiked: true }
 
         } else {
             // Supprime le like si déjà présent (unlike)
@@ -203,7 +233,7 @@ export const toggleLike = async (postId: number) => {
             });
             revalidatePath('/')
             revalidatePath(`/post/${postId}`);
-            return { message: 'removed', status: true,likes:countLike,hasLiked:false }
+            return { message: 'removed', status: true, likes: countLike, hasLiked: false }
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
@@ -213,7 +243,7 @@ export const toggleLike = async (postId: number) => {
 
 }
 
-export const toggleFavorit=async(postId:number)=>{
+export const toggleFavorit = async (postId: number) => {
     if (isNaN(postId)) {
         return { message: "Invalid post ID", status: false }
     }
@@ -242,10 +272,10 @@ export const toggleFavorit=async(postId:number)=>{
             return { message: "Post not found", status: false }
         }
 
-        const countFavorie=await prisma.favorie.count({where:{postId}})
+        const countFavorie = await prisma.favorie.count({ where: { postId } })
         console.log(countFavorie);
-        
-        
+
+
         // Vérifiez si le favorie existe déjà
         const existingFav = await prisma.favorie.findUnique({
             where: {
@@ -266,7 +296,7 @@ export const toggleFavorit=async(postId:number)=>{
             });
             revalidatePath(`/post/${postId}`);
             revalidatePath('/')
-            return { message: 'add', status: true,favories:countFavorie,hasFav:true }
+            return { message: 'add', status: true, favories: countFavorie, hasFav: true }
 
         } else {
             // Supprime le favorie si déjà présent (unFavorie)
@@ -275,7 +305,7 @@ export const toggleFavorit=async(postId:number)=>{
             });
             revalidatePath(`/post/${postId}`);
             revalidatePath('/')
-            return { message: 'removed', status: true,favories:countFavorie,hasFav:false }
+            return { message: 'removed', status: true, favories: countFavorie, hasFav: false }
         }
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

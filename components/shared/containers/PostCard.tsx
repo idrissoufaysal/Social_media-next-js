@@ -34,7 +34,7 @@ async function PostCard({ props }: { props?: Posts[number] }) {
                 width={300}
                 className='post-card_img mt-5 object-cover'
             />
-            <PostStats post={props!} userId={userId || ''}/>
+            <PostStats post={props!} userId={userId || ''} />
         </div>
     )
 }
